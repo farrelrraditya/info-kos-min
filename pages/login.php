@@ -7,10 +7,10 @@
  * Redirects to dashboard on success.
  */
 
-define('BASE_URL', '../..');
+define('BASE_URL', '..');
 
-require_once __DIR__ . '/../../includes/config.php';
-require_once __DIR__ . '/../../includes/functions.php';
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/functions.php';
 
 if (session_status() === PHP_SESSION_NONE) session_start();
 
@@ -179,8 +179,7 @@ $pageTitle = 'Login Admin';
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmyCA+mCpFb6XfJAa1kUcS5oD2IM" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="<?= BASE_URL ?>/assets/js/validation.js"></script>
 
 <!-- Password visibility toggle -->

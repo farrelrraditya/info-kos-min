@@ -24,12 +24,9 @@ $loggedIn  = isLoggedIn();
     <meta name="description" content="InfoKosMin — Platform Katalog Kos Pintar">
     <title><?= h($pageTitle) ?> — InfoKosMin</title>
 
-    <!-- Bootstrap 5.3 CSS -->
     <link
         rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-        crossorigin="anonymous"
     >
     <!-- Bootstrap Icons -->
     <link
@@ -79,6 +76,13 @@ $loggedIn  = isLoggedIn();
                         <i class="bi bi-search me-1"></i>Cari Kos
                     </a>
                 </li>
+                <?php if ($loggedIn): ?>
+                    <li class="nav-item">
+                        <a class="nav-link fw-bold text-warning" href="<?= BASE_URL ?>/pages/dashboard.php">
+                            <i class="bi bi-speedometer2 me-1"></i>Panel Admin
+                        </a>
+                    </li>
+                <?php endif; ?>
             </ul>
 
             <!-- Right side: Admin or Login -->

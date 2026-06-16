@@ -58,11 +58,7 @@
     <!-- /.deleteModal -->
 
     <!-- Bootstrap 5.3 JS Bundle (includes Popper) -->
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmyCA+mCpFb6XfJAa1kUcS5oD2IM"
-        crossorigin="anonymous"
-    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Application JS (loaded after Bootstrap) -->
     <script src="<?= BASE_URL ?>/assets/js/confirm-delete.js"></script>

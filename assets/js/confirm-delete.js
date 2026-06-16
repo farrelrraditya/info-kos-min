@@ -47,6 +47,13 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // Double confirmation via native confirm() on form submit
+    modalFormEl.addEventListener('submit', function (e) {
+        if (!confirm('Apakah Anda yakin ingin menghapus data ini secara permanen?')) {
+            e.preventDefault();
+        }
+    });
+
     // When modal is hidden, reset its content (cleanup)
     deleteModal.addEventListener('hidden.bs.modal', function () {
         modalNameEl.textContent    = '—';

@@ -282,6 +282,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     firstInvalid.focus();
                 }
+            } else if (this.action.includes('edit.php')) {
+                if (!confirm('Apakah Anda yakin ingin menyimpan perubahan data kos ini?')) {
+                    e.preventDefault();
+                }
             }
         });
 
@@ -307,6 +311,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     firstInvalid.focus();
                 }
+            } else if (this.action.includes('edit.php')) {
+                if (!confirm('Apakah Anda yakin ingin menyimpan perubahan data pemilik ini?')) {
+                    e.preventDefault();
+                }
             }
         });
     }
@@ -317,6 +325,10 @@ document.addEventListener('DOMContentLoaded', function () {
         facilityForm.addEventListener('submit', function (e) {
             if (!validateFacilityForm(this)) {
                 e.preventDefault();
+            } else if (this.action.includes('edit.php')) {
+                if (!confirm('Apakah Anda yakin ingin menyimpan perubahan data fasilitas ini?')) {
+                    e.preventDefault();
+                }
             }
         });
     }
@@ -339,6 +351,10 @@ document.addEventListener('DOMContentLoaded', function () {
             if (dateField && !dateField.value) {
                 showError('survey_date', 'Tanggal survei tidak boleh kosong.');
                 e.preventDefault();
+            } else if (this.action.includes('edit.php')) {
+                if (!confirm('Apakah Anda yakin ingin menyimpan perubahan log survei ini?')) {
+                    e.preventDefault();
+                }
             }
         });
     }

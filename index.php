@@ -7,8 +7,9 @@
  * Queries: view_available_boarding_houses
  */
 
-// Define base URL for all asset/link references
-define('BASE_URL', '');
+// Define base URL dynamically for all asset/link references
+$base_dir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+define('BASE_URL', $base_dir === '/' ? '' : $base_dir);
 
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/functions.php';
