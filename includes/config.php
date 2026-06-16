@@ -1,0 +1,52 @@
+<?php
+/**
+ * InfoKosMin - Database Configuration
+ * 
+ * CRITICAL SECURITY NOTICE:
+ * This file contains database credentials.
+ * It is listed in .gitignore and must NEVER be committed to GitHub.
+ * 
+ * Copy this file to your local machine and adjust values accordingly.
+ * For the template version, see config.example.php (if provided).
+ */
+
+define('DB_HOST',   'localhost');
+define('DB_NAME',   'infokosmin');
+define('DB_USER',   'root');
+define('DB_PASS',   '');
+define('DB_CHARSET','utf8mb4');
+
+/**
+ * Returns a singleton PDO connection instance.
+ * Uses PDO with prepared statement support and exception error mode.
+ *
+ * @return PDO
+ */
+function getDB(): PDO {
+    static $pdo = null;
+
+    if ($pdo === null) {
+        $dsn = 'mysql:host=' . DB_HOST
+             . ';dbname=' . DB_NAME
+             . ';charset=' . DB_CHARSET;
+
+        $options = [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => false,
+        ];
+
+        try {
+            $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+        } catch (PDOException $e) {
+            // Do not expose credentials in error output
+            error_log('Database connection failed: ' . $e->getMessage());
+            die('<div style="font-family:sans-serif;padding:2rem;color:#721c24;background:#f8d7da;border:1px solid #f5c6cb;border-radius:4px;">'
+              . '<strong>Database Error:</strong> Unable to connect to the database. '
+              . 'Please check your configuration in includes/config.php.'
+              . '</div>');
+        }
+    }
+
+    return $pdo;
+}
