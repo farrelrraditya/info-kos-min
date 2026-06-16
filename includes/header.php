@@ -76,13 +76,6 @@ $loggedIn  = isLoggedIn();
                         <i class="bi bi-search me-1"></i>Cari Kos
                     </a>
                 </li>
-                <?php if ($loggedIn): ?>
-                    <li class="nav-item">
-                        <a class="nav-link fw-bold text-warning" href="<?= BASE_URL ?>/pages/dashboard.php">
-                            <i class="bi bi-speedometer2 me-1"></i>Panel Admin
-                        </a>
-                    </li>
-                <?php endif; ?>
             </ul>
 
             <!-- Right side: Admin or Login -->
