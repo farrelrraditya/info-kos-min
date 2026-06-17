@@ -179,11 +179,12 @@ Akses panel admin melalui menu **Login Admin** di navbar kanan atas atau langsun
 
 | Halaman | Deskripsi / Preview |
 |---------|---------------------|
-| **Beranda** | Halaman katalog utama dengan filter harga, gender, pencarian, dan card kos. |
-| **Daftar Kos** | Panel administrasi tabel kos yang dilengkapi fitur pencarian, filter, dan tombol aksi. |
-| **Form Tambah** | Halaman formulir input kos dengan validasi interaktif dan pilihan checkbox fasilitas. |
-| **Form Edit** | Halaman formulir perubahan data kos yang memicu audit Trigger status. |
-| **Tampilan Mobile** | Visualisasi tata letak antarmuka yang responsif pada resolusi 375px–576px. |
+| **Beranda** | Halaman beranda utama dengan hero section dan polaroid grid.<br><br>![](assets/img/screenshots/beranda1.png) |
+| **Daftar Kos (Katalog)** | Panel katalog pencarian kos yang dilengkapi filter harga, gender, pencarian, dan pagination.<br><br>![](assets/img/screenshots/beranda2.png) |
+| **Dashboard Admin** | Visualisasi data analitik penting (ketersediaan kos, triggers, view DB, maps).<br><br>![](assets/img/screenshots/dashboard_admin.png) |
+| **Form Tambah** | Halaman formulir input data kos baru dengan validasi JavaScript sebelum dikirim ke server.<br><br>![](assets/img/screenshots/tambah_kos.png) |
+| **Form Edit** | Halaman formulir perubahan data kos yang pre-filled dan memicu log riwayat status.<br><br>![](assets/img/screenshots/edit_data_kos.png) |
+| **Tampilan Mobile** | Tata letak responsif pada resolusi handphone (min. 375px) dengan stack grid yang rapi.<br><br>![](assets/img/screenshots/mobile_responsive.png) |
 
 ---
 
