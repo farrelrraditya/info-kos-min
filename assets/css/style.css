@@ -696,10 +696,30 @@ main.main-content {
         margin-top: -1.5rem;
     }
     .polaroid-cascade-container {
-        margin-top: -3rem;
+        margin-top: 0;
+        margin-bottom: -1rem;
+    }
+    .polaroid-row {
+        flex-wrap: wrap;
+        overflow: visible;
+        overflow-x: visible;
+        overflow-y: visible;
+        gap: 1.5rem;
+        justify-content: center;
+        padding: 2rem 1rem;
+    }
+    .polaroid-card {
+        flex: 0 1 calc(33.333% - 1rem);
+        max-width: 180px;
+        min-width: 140px;
+        transform: none !important;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .polaroid-card:hover {
+        transform: scale(1.05) !important;
     }
     .achievements-section {
-        padding-top: 6rem;
+        padding-top: 5rem;
     }
     .detail-gallery-carousel img {
         height: 320px;
@@ -707,8 +727,14 @@ main.main-content {
 }
 
 @media (max-width: 575.98px) {
+    .polaroid-row {
+        gap: 1rem;
+        padding: 1.5rem 0.5rem;
+    }
     .polaroid-card {
-        flex: 0 0 150px;
+        flex: 0 1 calc(50% - 0.5rem);
+        max-width: 160px;
+        min-width: 130px;
         padding: 0.5rem 0.5rem 1.5rem 0.5rem;
     }
     .polaroid-card img {

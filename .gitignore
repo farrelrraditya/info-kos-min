@@ -1,0 +1,13 @@
+# Database configuration file (sensitive)
+includes/config.php
+
+# PHP dependencies
+vendor/
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+Thumbs.db
+.DS_Store

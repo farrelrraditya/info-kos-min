@@ -69,7 +69,7 @@ $pageTitle = 'Beranda';
                 <p class="text-muted lead mx-auto mb-4" style="max-width: 620px; font-size: 1.05rem; line-height: 1.6;">
                     Temukan kos terbaik dengan informasi terverifikasi, detail fasilitas lengkap, foto kamar aktual, dan komunikasi langsung ke pemilik kos.
                 </p>
-                <div class="d-flex justify-content-center gap-3">
+                <div class="d-flex justify-content-center gap-3 mb-4 mb-md-5 mb-lg-0">
                     <a href="catalog.php" class="btn btn-primary rounded-pill px-4 py-2" style="font-weight: 600;">
                         Cari Kos Sekarang <i class="bi bi-arrow-down ms-1"></i>
                     </a>
@@ -89,7 +89,7 @@ $pageTitle = 'Beranda';
             </div>
 
             <!-- Mobile Stats Row -->
-            <div class="col-12 d-block d-lg-none mt-2 text-center">
+            <div class="col-12 d-block d-lg-none mt-5 mb-4 text-center">
                 <div class="row g-3 justify-content-center">
                     <div class="col-3 border-end">
                         <div class="fw-bold fs-4 text-dark">408+</div>
