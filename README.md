@@ -171,7 +171,7 @@ infokosmin/
 
 Akses panel admin melalui menu **Login Admin** di navbar kanan atas atau langsung melalui alamat `/pages/login.php` dengan kredensial berikut:
 - **Username**: `admin`
-- **Password**: `admin123`
+- **Password**: `password`
 
 ---
 
