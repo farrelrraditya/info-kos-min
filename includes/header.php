@@ -33,8 +33,13 @@ $loggedIn  = isLoggedIn();
         rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
     >
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS with cache busting -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css?v=<?= time() ?>">
 </head>
 <body>
 
@@ -42,12 +47,12 @@ $loggedIn  = isLoggedIn();
      NAVBAR — Bootstrap responsive navbar with collapse
      Covers: B2 (Navbar responsif), B3 (Navbar component)
      ===================================================== -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top py-3 shadow-sm">
     <div class="container">
 
         <!-- Brand -->
-        <a class="navbar-brand fw-bold" href="<?= BASE_URL ?>/index.php">
-            <i class="bi bi-house-heart-fill me-1"></i>InfoKosMin
+        <a class="navbar-brand d-flex align-items-center" href="<?= BASE_URL ?>/index.php">
+            <img src="<?= BASE_URL ?>/assets/img/Main Logo.png" alt="InfoKosMin Logo" class="brand-logo" style="height: 36px; object-fit: contain;">
         </a>
 
         <!-- Mobile toggle button -->
@@ -72,14 +77,14 @@ $loggedIn  = isLoggedIn();
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<?= BASE_URL ?>/index.php#catalog">
+                    <a class="nav-link" href="<?= BASE_URL ?>/catalog.php">
                         <i class="bi bi-search me-1"></i>Cari Kos
                     </a>
                 </li>
             </ul>
 
             <!-- Right side: Admin or Login -->
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
                 <?php if ($loggedIn): ?>
                     <!-- Admin dropdown -->
                     <li class="nav-item dropdown">
@@ -124,9 +129,9 @@ $loggedIn  = isLoggedIn();
                         </ul>
                     </li>
                 <?php else: ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?= BASE_URL ?>/pages/login.php">
-                            <i class="bi bi-box-arrow-in-right me-1"></i>Login Admin
+                    <li class="nav-item ms-lg-2">
+                        <a class="btn btn-outline-primary rounded-pill px-4 py-2 text-decoration-none d-inline-flex align-items-center" href="<?= BASE_URL ?>/pages/login.php" style="font-size: 0.9rem; font-weight: 600;">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Login Admin
                         </a>
                     </li>
                 <?php endif; ?>

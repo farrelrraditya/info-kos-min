@@ -72,53 +72,45 @@ require_once __DIR__ . '/../includes/header.php';
     <div class="row g-3 mb-4">
         <!-- Total Kost -->
         <div class="col-12 col-sm-6 col-md-3">
-            <div class="card shadow-sm border-0 stat-card stat-primary h-100">
-                <div class="card-body d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-muted small uppercase fw-semibold mb-1">Total Kos</div>
-                        <h3 class="mb-0 fw-bold"><?= $countKosts ?></h3>
-                    </div>
-                    <div class="stat-icon text-primary"><i class="bi bi-building"></i></div>
+            <div class="stat-card-premium stat-primary">
+                <div class="stat-card-info">
+                    <h6>Total Kos</h6>
+                    <div class="counter"><?= $countKosts ?></div>
                 </div>
+                <div class="stat-card-icon-box"><i class="bi bi-building"></i></div>
             </div>
         </div>
 
         <!-- Available Kost -->
         <div class="col-12 col-sm-6 col-md-3">
-            <div class="card shadow-sm border-0 stat-card stat-success h-100">
-                <div class="card-body d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-muted small uppercase fw-semibold mb-1">Kos Tersedia</div>
-                        <h3 class="mb-0 fw-bold"><?= $countAvailable ?></h3>
-                    </div>
-                    <div class="stat-icon text-success"><i class="bi bi-check-circle"></i></div>
+            <div class="stat-card-premium stat-success">
+                <div class="stat-card-info">
+                    <h6>Kos Tersedia</h6>
+                    <div class="counter"><?= $countAvailable ?></div>
                 </div>
+                <div class="stat-card-icon-box"><i class="bi bi-check-circle"></i></div>
             </div>
         </div>
 
         <!-- Total Owners -->
         <div class="col-12 col-sm-6 col-md-3">
-            <div class="card shadow-sm border-0 stat-card stat-warning h-100">
-                <div class="card-body d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-muted small uppercase fw-semibold mb-1">Pemilik Kos</div>
-                        <h3 class="mb-0 fw-bold"><?= $countOwners ?></h3>
-                    </div>
-                    <div class="stat-icon text-warning"><i class="bi bi-people"></i></div>
+            <div class="stat-card-premium stat-warning">
+                <div class="stat-card-info">
+                    <h6>Pemilik Kos</h6>
+                    <div class="counter"><?= $countOwners ?></div>
                 </div>
+                <div class="stat-card-icon-box"><i class="bi bi-people"></i></div>
             </div>
         </div>
 
         <!-- Total Facilities -->
         <div class="col-12 col-sm-6 col-md-3">
-            <div class="card shadow-sm border-0 stat-card stat-danger h-100">
-                <div class="card-body d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-muted small uppercase fw-semibold mb-1">Fasilitas Master</div>
-                        <h3 class="mb-0 fw-bold"><?= $countFacilities ?></h3>
-                    </div>
-                    <div class="stat-icon text-danger"><i class="bi bi-grid"></i></div>
+            <div class="stat-card-premium stat-danger">
+                <div class="stat-card-info">
+                    <h6>Fasilitas Master</h6>
+                    <div class="counter"><?= $countFacilities ?></div>
                 </div>
+                <div class="stat-card-icon-box"><i class="bi bi-grid"></i></div>
             </div>
         </div>
     </div>

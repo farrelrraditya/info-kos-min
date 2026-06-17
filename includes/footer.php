@@ -3,18 +3,39 @@
     <!-- =====================================================
          FOOTER
          ===================================================== -->
-    <footer class="bg-dark text-white-50 py-4 mt-5">
+    <footer class="rich-footer py-5 mt-5">
         <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-6 mb-2 mb-md-0">
-                    <strong class="text-white">
-                        <i class="bi bi-house-heart-fill me-1"></i>InfoKosMin
-                    </strong>
-                    <p class="mb-0 small">Platform Katalog Kos Pintar &mdash; Temukan kos impianmu.</p>
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6 mb-3 mb-lg-0">
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="<?= BASE_URL ?>/assets/img/Main Logo.png" alt="InfoKosMin Logo" style="height: 36px; object-fit: contain;" class="me-2">
+                        <span class="fw-bold text-white fs-5">InfoKosMin</span>
+                    </div>
+                    <p class="small mb-0" style="line-height: 1.6;">Platform katalog kos pintar untuk mempermudah pencarian hunian terbaik di Sleman & Yogyakarta. Kami menyediakan data kos terverifikasi langsung.</p>
                 </div>
-                <div class="col-md-6 text-md-end">
-                    <small>&copy; <?= date('Y') ?> InfoKosMin. Proyek Akademik.</small>
+                <div class="col-lg-2 col-md-6 mb-3 mb-lg-0">
+                    <h5 class="text-white fs-6 fw-semibold mb-3">Navigasi</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2"><a href="<?= BASE_URL ?>/index.php" class="text-decoration-none">Beranda</a></li>
+                        <li class="mb-2"><a href="<?= BASE_URL ?>/catalog.php" class="text-decoration-none">Cari Kos</a></li>
+                        <li class="mb-2"><a href="<?= BASE_URL ?>/pages/login.php" class="text-decoration-none">Login Admin</a></li>
+                    </ul>
                 </div>
+                <div class="col-lg-3 col-md-6 mb-3 mb-lg-0">
+                    <h5 class="text-white fs-6 fw-semibold mb-3">Kontak</h5>
+                    <ul class="list-unstyled mb-0 small">
+                        <li class="mb-2"><i class="bi bi-geo-alt me-2 text-primary"></i>Sleman, DIY</li>
+                        <li class="mb-2"><i class="bi bi-telephone me-2 text-primary"></i>+62 812-3456-789</li>
+                        <li class="mb-2"><i class="bi bi-envelope me-2 text-primary"></i>info@infokosmin.ac.id</li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="text-white fs-6 fw-semibold mb-3">Motto Kami</h5>
+                    <p class="small mb-0" style="line-height: 1.6;">"Pilihan Hunian Tepat Untuk Masa Depan Hebat." Partner terpercaya mahasiswa dan pekerja mencari kos idaman.</p>
+                </div>
+            </div>
+            <div class="rich-footer-bottom text-center small">
+                &copy; <?= date('Y') ?> InfoKosMin.
             </div>
         </div>
     </footer>

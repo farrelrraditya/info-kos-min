@@ -67,10 +67,15 @@ $pageTitle = 'Login Admin';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= h($pageTitle) ?> — InfoKosMin</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS with cache busting -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css?v=<?= time() ?>">
 </head>
 <body class="bg-light">
 
@@ -80,21 +85,21 @@ $pageTitle = 'Login Admin';
 
             <!-- Brand -->
             <div class="text-center mb-4">
-                <a href="<?= BASE_URL ?>/index.php" class="text-decoration-none">
-                    <i class="bi bi-house-heart-fill text-primary" style="font-size: 2.5rem;"></i>
-                    <h4 class="mt-2 fw-bold text-primary">InfoKosMin</h4>
+                <a href="<?= BASE_URL ?>/index.php" class="text-decoration-none d-inline-flex flex-column align-items-center">
+                    <img src="<?= BASE_URL ?>/assets/img/Main Logo.png" alt="InfoKosMin Logo" style="height: 54px;" class="mb-2">
+                    <h4 class="fw-bold text-dark mb-0">InfoKosMin</h4>
                 </a>
-                <p class="text-muted">Admin Panel</p>
+                <p class="text-muted small">Admin Panel</p>
             </div>
 
             <!-- Login Card -->
-            <div class="card shadow-sm">
+            <div class="card shadow-sm border-0 rounded-4">
                 <div class="card-body p-4">
-                    <h5 class="card-title mb-4 text-center">Masuk ke Akun Admin</h5>
+                    <h5 class="card-title mb-4 text-center fw-bold text-dark">Masuk ke Akun Admin</h5>
 
                     <!-- General error (wrong credentials) -->
                     <?php if (!empty($errors['general'])): ?>
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <div class="alert alert-danger alert-dismissible fade show rounded-3" role="alert">
                             <i class="bi bi-exclamation-triangle me-2"></i>
                             <?= h($errors['general']) ?>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -106,14 +111,14 @@ $pageTitle = 'Login Admin';
 
                         <!-- Username -->
                         <div class="mb-3">
-                            <label for="username" class="form-label fw-semibold">
+                            <label for="username" class="form-label fw-semibold small text-muted">
                                 Username <span class="text-danger">*</span>
                             </label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <div class="input-group border rounded-3 overflow-hidden bg-white">
+                                <span class="input-group-text border-0 bg-transparent text-muted"><i class="bi bi-person"></i></span>
                                 <input
                                     type="text"
-                                    class="form-control <?= isset($errors['username']) ? 'is-invalid' : '' ?>"
+                                    class="form-control border-0 shadow-none <?= isset($errors['username']) ? 'is-invalid' : '' ?>"
                                     id="username"
                                     name="username"
                                     value="<?= h($_POST['username'] ?? '') ?>"
@@ -130,21 +135,21 @@ $pageTitle = 'Login Admin';
 
                         <!-- Password -->
                         <div class="mb-4">
-                            <label for="password" class="form-label fw-semibold">
+                            <label for="password" class="form-label fw-semibold small text-muted">
                                 Password <span class="text-danger">*</span>
                             </label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <div class="input-group border rounded-3 overflow-hidden bg-white">
+                                <span class="input-group-text border-0 bg-transparent text-muted"><i class="bi bi-lock"></i></span>
                                 <input
                                     type="password"
-                                    class="form-control <?= isset($errors['password']) ? 'is-invalid' : '' ?>"
+                                    class="form-control border-0 shadow-none <?= isset($errors['password']) ? 'is-invalid' : '' ?>"
                                     id="password"
                                     name="password"
                                     placeholder="Masukkan password"
                                     autocomplete="current-password"
                                     required
                                 >
-                                <button class="btn btn-outline-secondary" type="button" id="togglePassword" title="Tampilkan password">
+                                <button class="btn btn-outline-secondary border-0 bg-transparent text-muted" type="button" id="togglePassword" title="Tampilkan password">
                                     <i class="bi bi-eye" id="toggleIcon"></i>
                                 </button>
                             </div>
@@ -154,21 +159,21 @@ $pageTitle = 'Login Admin';
                         </div>
 
                         <div class="d-grid mb-3">
-                            <button type="submit" class="btn btn-primary btn-lg">
+                            <button type="submit" class="btn btn-primary rounded-pill py-2.5 fw-semibold">
                                 <i class="bi bi-box-arrow-in-right me-2"></i>Masuk
                             </button>
                         </div>
 
                     </form>
 
-                    <div class="text-center">
-                        <a href="<?= BASE_URL ?>/index.php" class="text-muted small text-decoration-none">
-                            <i class="bi bi-arrow-left me-1"></i>Kembali ke Beranda
+                    <div class="text-center mt-3">
+                        <a href="<?= BASE_URL ?>/index.php" class="text-muted small text-decoration-none d-inline-flex align-items-center">
+                            <i class="bi bi-arrow-left me-2"></i>Kembali ke Beranda
                         </a>
                     </div>
 
                     <!-- Demo credentials hint -->
-                    <div class="alert alert-light border mt-4 mb-0 small">
+                    <div class="alert alert-light border mt-4 mb-0 small rounded-3">
                         <i class="bi bi-info-circle me-1 text-primary"></i>
                         <strong>Demo:</strong> username: <code>admin</code> | password: <code>admin123</code>
                     </div>

@@ -18,376 +18,375 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 
 $pdo = getDB();
 
-// ─── Search & Filter Parameters (from GET) ───────────────────────
-$search       = sanitizeInput($_GET['search']      ?? '');
-$filterGender = sanitizeInput($_GET['gender']      ?? '');
-$filterMax    = (int)($_GET['max_price']           ?? 0);
-$filterDistrict = sanitizeInput($_GET['district']  ?? '');
-$currentPage  = max(1, (int)($_GET['page']         ?? 1));
-$perPage      = 9;
+// Fetch total room count for statistics
+$totalRows = (int)$pdo->query("SELECT COUNT(*) FROM boarding_houses WHERE availability_status = 'available'")->fetchColumn();
 
-// ─── Build dynamic WHERE clause ──────────────────────────────────
-$where  = ['bh.availability_status = ?'];
-$params = ['available'];
-
-if ($search !== '') {
-    $where[]  = '(bh.kost_name LIKE ? OR bh.district LIKE ? OR bh.address LIKE ?)';
-    $like     = '%' . $search . '%';
-    $params[] = $like;
-    $params[] = $like;
-    $params[] = $like;
-}
-if ($filterGender !== '') {
-    $where[]  = 'bh.gender_type = ?';
-    $params[] = $filterGender;
-}
-if ($filterMax > 0) {
-    $where[]  = 'bh.monthly_price <= ?';
-    $params[] = $filterMax;
-}
-if ($filterDistrict !== '') {
-    $where[]  = 'bh.district LIKE ?';
-    $params[] = '%' . $filterDistrict . '%';
-}
-
-$whereSQL = 'WHERE ' . implode(' AND ', $where);
-
-// ─── Count total for pagination ───────────────────────────────────
-$countSQL  = "SELECT COUNT(*) FROM boarding_houses bh $whereSQL";
-$countStmt = $pdo->prepare($countSQL);
-$countStmt->execute($params);
-$totalRows = (int)$countStmt->fetchColumn();
-$pager     = paginate($totalRows, $currentPage, $perPage);
-
-// ─── Fetch catalog rows ───────────────────────────────────────────
-// Using view columns but joining directly for filter flexibility
-$sql = "
-    SELECT
-        bh.id_kost,
-        bh.kost_name,
-        bh.district,
-        bh.monthly_price,
-        bh.gender_type,
-        bh.room_size,
-        bh.is_furnished,
-        bh.electricity_type,
-        bh.availability_status,
-        o.owner_name,
-        o.phone_number,
-        (SELECT p.photo_path FROM photos p WHERE p.id_kost = bh.id_kost ORDER BY p.uploaded_at ASC LIMIT 1) AS cover_photo,
-        (SELECT COUNT(*) FROM kost_facilities kf WHERE kf.id_kost = bh.id_kost) AS facility_count
-    FROM boarding_houses bh
-    INNER JOIN owners o ON bh.id_owner = o.id_owner
-    $whereSQL
-    ORDER BY bh.created_at DESC
-    LIMIT {$pager['perPage']} OFFSET {$pager['offset']}
-";
-$stmt = $pdo->prepare($sql);
-$stmt->execute($params);
-$kosts = $stmt->fetchAll();
-
-// ─── District list for filter dropdown ───────────────────────────
+// Fetch distinct districts count for statistics
 $distStmt = $pdo->query("SELECT DISTINCT district FROM boarding_houses WHERE availability_status='available' ORDER BY district");
 $districts = $distStmt->fetchAll(PDO::FETCH_COLUMN);
 
-// ─── Build base URL for pagination links ─────────────────────────
-$queryParts = [];
-if ($search       !== '') $queryParts[] = 'search='       . urlencode($search);
-if ($filterGender !== '') $queryParts[] = 'gender='       . urlencode($filterGender);
-if ($filterMax     > 0)   $queryParts[] = 'max_price='    . $filterMax;
-if ($filterDistrict !== '') $queryParts[] = 'district='   . urlencode($filterDistrict);
-$paginationBase = 'index.php' . ($queryParts ? '?' . implode('&', $queryParts) : '');
+// Fetch featured boarding houses (stable list of 4 items)
+$featStmt = $pdo->prepare("
+    SELECT bh.id_kost, bh.kost_name, bh.district, bh.monthly_price, bh.gender_type, bh.is_furnished, bh.availability_status,
+           (SELECT p.photo_path FROM photos p WHERE p.id_kost = bh.id_kost ORDER BY p.uploaded_at ASC LIMIT 1) AS cover_photo
+    FROM boarding_houses bh
+    WHERE bh.availability_status = 'available'
+    ORDER BY bh.created_at DESC
+    LIMIT 4
+");
+$featStmt->execute();
+$featuredKosts = $featStmt->fetchAll();
 
 $pageTitle = 'Beranda';
 ?>
 <?php require_once __DIR__ . '/includes/header.php'; ?>
+<main class="main-content">
 
 <!-- ================================================================
      HERO SECTION
-     Covers: Landing Page requirement, Hero Section, Bootstrap Grid
      ================================================================ -->
-<section class="hero-section" id="home">
+<section class="hero-section-custom" id="home">
     <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-7 mb-4 mb-lg-0">
-                <h1 class="mb-3">
-                    <i class="bi bi-house-heart-fill me-2"></i>InfoKosMin
-                </h1>
-                <p class="lead mb-4">
-                    Platform katalog kos pintar untuk mempermudah pencarian hunian.
-                    Temukan kos terbaik dengan informasi lengkap, foto, dan kontak pemilik.
-                </p>
-                <a href="#catalog" class="btn btn-light btn-lg me-2">
-                    <i class="bi bi-search me-1"></i>Cari Kos Sekarang
-                </a>
-                <a href="pages/kost/index.php" class="btn btn-outline-light btn-lg">
-                    <i class="bi bi-grid me-1"></i>Lihat Semua
-                </a>
+        <div class="row align-items-center justify-content-between g-4">
+            <!-- Left Stats (Desktop only) -->
+            <div class="col-lg-2 d-none d-lg-block">
+                <div class="hero-stats-box mb-4">
+                    <div class="hero-stats-number">408+</div>
+                    <div class="hero-stats-label">Happy Users</div>
+                </div>
+                <div class="hero-stats-box">
+                    <div class="hero-stats-number">4.9</div>
+                    <div class="hero-stats-label">Client Ratings</div>
+                </div>
             </div>
-            <div class="col-lg-5 text-center d-none d-lg-block">
-                <i class="bi bi-buildings" style="font-size: 8rem; opacity: 0.4;"></i>
+
+            <!-- Central Heading -->
+            <div class="col-lg-8 text-center px-4">
+                <span class="section-tag mb-3">Katalog Kos Pintar</span>
+                <h1 class="display-4 fw-bold mb-3 text-dark" style="letter-spacing: -0.02em; line-height: 1.2;">
+                    Hunian Kos Nyaman,<br>Mulai Cerita Anda Di Sini.
+                </h1>
+                <p class="text-muted lead mx-auto mb-4" style="max-width: 620px; font-size: 1.05rem; line-height: 1.6;">
+                    Temukan kos terbaik dengan informasi terverifikasi, detail fasilitas lengkap, foto kamar aktual, dan komunikasi langsung ke pemilik kos.
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="catalog.php" class="btn btn-primary rounded-pill px-4 py-2" style="font-weight: 600;">
+                        Cari Kos Sekarang <i class="bi bi-arrow-down ms-1"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right Stats (Desktop only) -->
+            <div class="col-lg-2 d-none d-lg-block text-end">
+                <div class="hero-stats-box mb-4">
+                    <div class="hero-stats-number"><?= $totalRows ?>+</div>
+                    <div class="hero-stats-label">Verified Rooms</div>
+                </div>
+                <div class="hero-stats-box">
+                    <div class="hero-stats-number"><?= count($districts) ?>+</div>
+                    <div class="hero-stats-label">Neighborhoods</div>
+                </div>
+            </div>
+
+            <!-- Mobile Stats Row -->
+            <div class="col-12 d-block d-lg-none mt-2 text-center">
+                <div class="row g-3 justify-content-center">
+                    <div class="col-3 border-end">
+                        <div class="fw-bold fs-4 text-dark">408+</div>
+                        <div class="text-muted small" style="font-size: 0.7rem;">Happy Users</div>
+                    </div>
+                    <div class="col-3 border-end">
+                        <div class="fw-bold fs-4 text-dark">4.9</div>
+                        <div class="text-muted small" style="font-size: 0.7rem;">Ratings</div>
+                    </div>
+                    <div class="col-3 border-end">
+                        <div class="fw-bold fs-4 text-dark"><?= $totalRows ?>+</div>
+                        <div class="text-muted small" style="font-size: 0.7rem;">Rooms</div>
+                    </div>
+                    <div class="col-3">
+                        <div class="fw-bold fs-4 text-dark"><?= count($districts) ?>+</div>
+                        <div class="text-muted small" style="font-size: 0.7rem;">Districts</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
 <!-- ================================================================
-     INFO STRIP
+     POLAROID CASCADE SHOWCASE
      ================================================================ -->
-<section class="bg-white border-bottom py-3">
+<div class="polaroid-cascade-container">
     <div class="container">
-        <div class="row text-center g-3">
-            <div class="col-6 col-md-3">
-                <div class="fw-bold text-primary fs-4"><?= $totalRows ?>+</div>
-                <div class="text-muted small">Kos Tersedia</div>
+        <div class="polaroid-row">
+            <div class="polaroid-card">
+                <img src="<?= BASE_URL ?>/uploads/kost/polaroid_1.jfif" alt="Polaroid 1">
             </div>
-            <div class="col-6 col-md-3">
-                <div class="fw-bold text-primary fs-4"><?= count($districts) ?>+</div>
-                <div class="text-muted small">Kecamatan</div>
+            <div class="polaroid-card">
+                <img src="<?= BASE_URL ?>/uploads/kost/polaroid_2.jfif" alt="Polaroid 2">
             </div>
-            <div class="col-6 col-md-3">
-                <div class="fw-bold text-primary fs-4">3</div>
-                <div class="text-muted small">Tipe Kos</div>
+            <div class="polaroid-card">
+                <img src="<?= BASE_URL ?>/uploads/kost/polaroid_3.jfif" alt="Polaroid 3">
             </div>
-            <div class="col-6 col-md-3">
-                <div class="fw-bold text-primary fs-4">100%</div>
-                <div class="text-muted small">Info Terverifikasi</div>
+            <div class="polaroid-card">
+                <img src="<?= BASE_URL ?>/uploads/kost/polaroid_4.jfif" alt="Polaroid 4">
+            </div>
+            <div class="polaroid-card">
+                <img src="<?= BASE_URL ?>/uploads/kost/polaroid_5.jfif" alt="Polaroid 5">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================================================================
+     DWELLING ACHIEVEMENTS SECTION (Dark BG)
+     ================================================================ -->
+<section class="achievements-section">
+    <div class="container text-center py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h2 class="fw-bold mb-3 fs-1 text-white">Apa itu InfoKosMin?</h2>
+                <p class="lead fs-6 mb-0" style="line-height: 1.7; font-size: 0.95rem;">
+                    Platform direktori kos pintar kami dikembangkan khusus untuk mempermudah civitas akademika dan pekerja. Dengan komitmen keakuratan data visual dan verifikasi survei langsung, InfoKosMin hadir memberikan ketenangan dalam memilih hunian baru Anda.
+                </p>
             </div>
         </div>
     </div>
 </section>
 
-<main class="main-content" id="catalog">
-    <div class="container">
-
-        <?php showFlash(); ?>
-
-        <!-- ============================================================
-             SEARCH & FILTER
-             Covers: Search feature, DOM manipulation via search.js
-             ============================================================ -->
-        <div class="card shadow-sm mb-4">
-            <div class="card-body">
-                <form id="filterForm" method="GET" action="index.php">
-                    <div class="row g-2">
-                        <!-- Search input -->
-                        <div class="col-12 col-md-4">
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-search"></i></span>
-                                <input
-                                    type="text"
-                                    class="form-control"
-                                    id="searchInput"
-                                    name="search"
-                                    placeholder="Cari nama kos atau kecamatan..."
-                                    value="<?= h($search) ?>"
-                                    autocomplete="off"
-                                >
-                                <button
-                                    type="button"
-                                    class="btn btn-outline-secondary <?= $search ? '' : 'd-none' ?>"
-                                    id="clearSearchBtn"
-                                    title="Hapus pencarian"
-                                >
-                                    <i class="bi bi-x"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- District filter -->
-                        <div class="col-6 col-md-2">
-                            <select class="form-select" name="district" id="districtFilter">
-                                <option value="">Semua Kecamatan</option>
-                                <?php foreach ($districts as $d): ?>
-                                    <option value="<?= h($d) ?>" <?= ($filterDistrict === $d) ? 'selected' : '' ?>>
-                                        <?= h($d) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-
-                        <!-- Gender filter -->
-                        <div class="col-6 col-md-2">
-                            <select class="form-select" name="gender" id="genderFilter">
-                                <option value="">Semua Tipe</option>
-                                <option value="male"   <?= ($filterGender === 'male')   ? 'selected' : '' ?>>Putra</option>
-                                <option value="female" <?= ($filterGender === 'female') ? 'selected' : '' ?>>Putri</option>
-                                <option value="mixed"  <?= ($filterGender === 'mixed')  ? 'selected' : '' ?>>Campur</option>
-                            </select>
-                        </div>
-
-                        <!-- Max price filter -->
-                        <div class="col-6 col-md-2">
-                            <select class="form-select" name="max_price" id="maxPriceFilter">
-                                <option value="0">Semua Harga</option>
-                                <option value="500000"  <?= ($filterMax === 500000)  ? 'selected' : '' ?>>≤ Rp 500rb</option>
-                                <option value="800000"  <?= ($filterMax === 800000)  ? 'selected' : '' ?>>≤ Rp 800rb</option>
-                                <option value="1000000" <?= ($filterMax === 1000000) ? 'selected' : '' ?>>≤ Rp 1jt</option>
-                                <option value="1500000" <?= ($filterMax === 1500000) ? 'selected' : '' ?>>≤ Rp 1,5jt</option>
-                                <option value="2000000" <?= ($filterMax === 2000000) ? 'selected' : '' ?>>≤ Rp 2jt</option>
-                            </select>
-                        </div>
-
-                        <!-- Submit -->
-                        <div class="col-6 col-md-2 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary flex-grow-1">
-                                <i class="bi bi-funnel me-1"></i>Filter
-                            </button>
-                            <?php if ($search || $filterGender || $filterMax || $filterDistrict): ?>
-                                <a href="index.php" class="btn btn-outline-secondary" title="Reset filter">
-                                    <i class="bi bi-arrow-counterclockwise"></i>
-                                </a>
-                            <?php endif; ?>
-                        </div>
-                    </div><!-- /.row -->
-                </form>
+<!-- ================================================================
+     FEATURED LISTINGS SECTION
+     ================================================================ -->
+<section class="py-5 bg-white border-bottom">
+    <div class="container py-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-5">
+            <div>
+                <span class="section-tag">Featured Listing</span>
+                <h2 class="fw-bold mb-0 fs-1">Rekomendasi Kos Pilihan</h2>
             </div>
-        </div>
-        <!-- /.search & filter -->
-
-        <!-- Live search indicator (DOM manipulation target) -->
-        <div id="result-count" class="text-muted small mb-3 d-none"></div>
-        <div id="filterLoading" class="text-muted small mb-3 d-none">
-            <span class="spinner-border spinner-border-sm me-1"></span>Memfilter...
-        </div>
-
-        <!-- Results header -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0">
-                <?php if ($search || $filterGender || $filterMax || $filterDistrict): ?>
-                    Hasil Pencarian
-                    <span class="badge bg-primary ms-2"><?= $totalRows ?> kos</span>
-                <?php else: ?>
-                    Kos Tersedia
-                    <span class="badge bg-success ms-2"><?= $totalRows ?> kos</span>
-                <?php endif; ?>
-            </h5>
-            <small class="text-muted">Halaman <?= $pager['currentPage'] ?> dari <?= $pager['totalPages'] ?: 1 ?></small>
-        </div>
-
-        <!-- ============================================================
-             CATALOG GRID
-             Covers: Bootstrap Card component, Grid layout
-             ============================================================ -->
-        <?php if (empty($kosts)): ?>
-            <div class="alert alert-info text-center py-5">
-                <i class="bi bi-search display-4 d-block mb-3"></i>
-                <h5>Tidak ada kos ditemukan</h5>
-                <p class="mb-3">Coba ubah kata kunci atau filter pencarian Anda.</p>
-                <a href="index.php" class="btn btn-primary">
-                    <i class="bi bi-arrow-left me-1"></i>Lihat Semua Kos
+            <div class="mt-3 mt-md-0">
+                <a href="catalog.php" class="btn btn-outline-primary rounded-pill px-4">
+                    Lebih lanjut <i class="bi bi-arrow-right ms-1"></i>
                 </a>
             </div>
-        <?php else: ?>
-            <div class="row g-4">
-                <?php foreach ($kosts as $kost): ?>
-                    <div class="col-12 col-sm-6 col-xl-4">
-                        <div class="card h-100 kost-card shadow-sm">
+        </div>
 
-                            <!-- Cover Photo -->
-                            <?php if ($kost['cover_photo']): ?>
-                                <img
-                                    src="<?= BASE_URL ?>/uploads/kost/<?= h($kost['cover_photo']) ?>"
-                                    class="card-img-top"
-                                    alt="<?= h($kost['kost_name']) ?>"
-                                    loading="lazy"
-                                    onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
-                                >
-                                <div class="card-img-placeholder" style="display:none;">
-                                    <i class="bi bi-image"></i>
-                                </div>
-                            <?php else: ?>
-                                <div class="card-img-placeholder">
-                                    <i class="bi bi-building"></i>
-                                </div>
-                            <?php endif; ?>
-
-                            <div class="card-body d-flex flex-column">
-                                <!-- Status badges -->
-                                <div class="mb-2 d-flex flex-wrap gap-1">
-                                    <span class="badge <?= statusBadgeClass($kost['availability_status']) ?>">
+        <div class="row g-4">
+            <?php if (empty($featuredKosts)): ?>
+                <div class="col-12 text-center py-4 text-muted">Belum ada kos terdaftar.</div>
+            <?php else: ?>
+                <?php foreach ($featuredKosts as $kost): ?>
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <div class="kost-card-custom">
+                            <div class="kost-card-img-wrapper">
+                                <div class="kost-card-badge-container">
+                                    <span class="kost-badge-status status-<?= h($kost['availability_status']) ?>">
                                         <?= statusLabel($kost['availability_status']) ?>
                                     </span>
-                                    <span class="badge <?= genderBadgeClass($kost['gender_type']) ?>">
+                                    <span class="kost-badge-gender gender-<?= h($kost['gender_type']) ?>">
                                         <?= genderLabel($kost['gender_type']) ?>
                                     </span>
-                                    <?php if ($kost['is_furnished']): ?>
-                                        <span class="badge bg-info text-dark">Furnished</span>
-                                    <?php endif; ?>
                                 </div>
-
-                                <h6 class="card-title fw-bold mb-1"><?= h($kost['kost_name']) ?></h6>
-
-                                <p class="text-muted small mb-2">
-                                    <i class="bi bi-geo-alt me-1"></i><?= h($kost['district']) ?>
-                                </p>
-
-                                <div class="price-tag mb-2">
-                                    <?= formatRupiah($kost['monthly_price']) ?>
-                                    <span class="text-muted fw-normal fs-6">/bulan</span>
+                                <?php if ($kost['cover_photo']): ?>
+                                    <img
+                                        src="<?= BASE_URL ?>/uploads/kost/<?= h($kost['cover_photo']) ?>"
+                                        alt="<?= h($kost['kost_name']) ?>"
+                                        loading="lazy"
+                                        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+                                    >
+                                    <div class="w-100 h-100 d-none align-items-center justify-content-center bg-light text-muted" style="font-size: 3rem;">
+                                        <i class="bi bi-image"></i>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light text-muted" style="font-size: 3rem;">
+                                        <i class="bi bi-building"></i>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="card-body p-4 d-flex flex-column">
+                                <h5 class="fw-bold text-dark mb-1 text-truncate" title="<?= h($kost['kost_name']) ?>"><?= h($kost['kost_name']) ?></h5>
+                                <p class="text-muted small mb-3"><i class="bi bi-geo-alt me-1 text-danger"></i>Kec. <?= h($kost['district']) ?></p>
+                                <div class="kost-card-price mt-auto">
+                                    <?= formatRupiah($kost['monthly_price']) ?> <span>/bulan</span>
                                 </div>
-
-                                <div class="text-muted small mb-3 d-flex flex-wrap gap-2">
-                                    <?php if ($kost['room_size']): ?>
-                                        <span><i class="bi bi-aspect-ratio me-1"></i><?= h($kost['room_size']) ?> m</span>
-                                    <?php endif; ?>
-                                    <span><i class="bi bi-lightning me-1"></i><?= ($kost['electricity_type'] === 'token') ? 'Token' : 'Fixed' ?></span>
-                                    <span><i class="bi bi-stars me-1"></i><?= $kost['facility_count'] ?> fasilitas</span>
-                                </div>
-
-                                <a
-                                    href="pages/kost/detail.php?id=<?= $kost['id_kost'] ?>"
-                                    class="btn btn-primary btn-sm mt-auto"
-                                >
-                                    <i class="bi bi-eye me-1"></i>Lihat Detail
+                                <a href="pages/kost/detail.php?id=<?= $kost['id_kost'] ?>" class="btn btn-primary btn-sm rounded-pill w-100 mt-3 py-2">
+                                    Lihat Detail <i class="bi bi-eye ms-1"></i>
                                 </a>
-                            </div><!-- /.card-body -->
-
-                        </div><!-- /.card -->
-                    </div><!-- /.col -->
+                            </div>
+                        </div>
+                    </div>
                 <?php endforeach; ?>
-            </div><!-- /.row -->
+            <?php endif; ?>
+        </div>
+    </div>
+</section>
 
-            <!-- Pagination -->
-            <div class="mt-4">
-                <?php renderPagination($pager, $paginationBase); ?>
-            </div>
-        <?php endif; ?>
-
-        <!-- ============================================================
-             ABOUT SECTION
-             Covers: Project Description requirement on landing page
-             ============================================================ -->
-        <section class="mt-5 pt-4 border-top" id="about">
-            <div class="row g-4">
-                <div class="col-12">
-                    <h3 class="mb-3">Tentang InfoKosMin</h3>
-                </div>
-                <div class="col-md-4">
-                    <div class="card h-100 border-0 bg-white shadow-sm text-center p-3">
-                        <i class="bi bi-shield-check text-primary fs-1 mb-3"></i>
-                        <h5>Terverifikasi</h5>
-                        <p class="text-muted small">Setiap kos disurvei langsung oleh tim InfoKosMin sebelum ditampilkan.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card h-100 border-0 bg-white shadow-sm text-center p-3">
-                        <i class="bi bi-camera text-primary fs-1 mb-3"></i>
-                        <h5>Foto Lengkap</h5>
-                        <p class="text-muted small">Foto kamar, kamar mandi, dapur, dan area parkir tersedia per kategori.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card h-100 border-0 bg-white shadow-sm text-center p-3">
-                        <i class="bi bi-whatsapp text-primary fs-1 mb-3"></i>
-                        <h5>Kontak Langsung</h5>
-                        <p class="text-muted small">Hubungi pemilik kos langsung via WhatsApp tanpa perantara.</p>
+<!-- ================================================================
+     OUR VISION & MISSION SECTION
+     ================================================================ -->
+<section class="py-5 bg-light border-bottom">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <span class="section-tag">Visi & Misi</span>
+            <h2 class="fw-bold mb-0 fs-1">Fokus & Nilai InfoKosMin</h2>
+        </div>
+        <div class="row g-4">
+            <!-- Visi -->
+            <div class="col-md-6">
+                <div class="card vision-mission-card border-0">
+                    <img src="<?= BASE_URL ?>/assets/img/vision_illustration.jfif" class="vision-mission-img" alt="Visi Kami">
+                    <div class="card-body p-4">
+                        <h4 class="fw-bold mb-2"><i class="bi bi-eye text-primary me-2"></i>Visi Kami</h4>
+                        <p class="text-muted small mb-0" style="line-height: 1.7;">
+                            Menjadi platform direktori kos utama dan paling terpercaya, membantu pencari hunian mendapatkan kos terbaik dengan visual aktual terverifikasi, serta menghubungkan pemilik secara langsung tanpa perantara.
+                        </p>
                     </div>
                 </div>
             </div>
-        </section>
+            <!-- Misi -->
+            <div class="col-md-6">
+                <div class="card vision-mission-card border-0">
+                    <img src="<?= BASE_URL ?>/assets/img/mision_illustration.jfif" class="vision-mission-img" alt="Misi Kami">
+                    <div class="card-body p-4">
+                        <h4 class="fw-bold mb-2"><i class="bi bi-compass text-primary me-2"></i>Misi Kami</h4>
+                        <p class="text-muted small mb-0" style="line-height: 1.7;">
+                            Menyajikan visualisasi kamar terperinci, melakukan survei berkala kelayakan fasilitas, dan memangkas hambatan birokrasi komunikasi sewa lewat integrasi WhatsApp pemilik properti.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-    </div><!-- /.container -->
-</main>
+<!-- ================================================================
+     3 CORE VALUES SECTION
+     ================================================================ -->
+<section class="py-5 bg-white border-bottom">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <span class="section-tag">Brand Values</span>
+            <h2 class="fw-bold mb-0 fs-1">Kelebihan Menggunakan InfoKosMin</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="value-card">
+                    <div class="value-icon-circle"><i class="bi bi-search"></i></div>
+                    <h4 class="fw-bold mb-3">Cari Kos Instan</h4>
+                    <p class="text-muted small mb-4" style="line-height: 1.6;">
+                        Gunakan filter pencarian pintar kami berdasarkan kecamatan, batasan harga sewa bulanan, dan tipe gender kos (Putra/Putri/Campur) dalam satu klik.
+                    </p>
+                    <a href="catalog.php" class="value-link">Lebih detail <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="value-card">
+                    <div class="value-icon-circle"><i class="bi bi-patch-check"></i></div>
+                    <h4 class="fw-bold mb-3">Detail Terverifikasi</h4>
+                    <p class="text-muted small mb-4" style="line-height: 1.6;">
+                        Tiap data spesifikasi kos, fasilitas terdaftar, serta koordinat lokasi diverifikasi dan disurvei berkala di lapangan oleh tim surveyor kami.
+                    </p>
+                    <a href="catalog.php" class="value-link">Lebih detail <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="value-card">
+                    <div class="value-icon-circle"><i class="bi bi-whatsapp"></i></div>
+                    <h4 class="fw-bold mb-3">Hubungi Langsung</h4>
+                    <p class="text-muted small mb-4" style="line-height: 1.6;">
+                        Tanpa biaya administrasi atau calo perantara. Hubungi langsung kontak WhatsApp pemilik kos dengan template pesan otomatis sekali ketuk.
+                    </p>
+                    <a href="catalog.php" class="value-link">Lebih detail <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================================================================
+     TESTIMONIALS SECTION
+     ================================================================ -->
+<section class="py-5 bg-light border-bottom">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <span class="section-tag">Testimonials</span>
+            <h2 class="fw-bold mb-0 fs-1">Apa Kata Pengguna Kami?</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="testimonial-card-custom">
+                    <div class="testimonial-quote-icon"><i class="bi bi-quote"></i></div>
+                    <p class="testimonial-text">
+                        "Sangat mempermudah cari kos dekat Sekolah Vokasi UGM. Fotonya lengkap per kategori dari kamar tidur sampai parkiran. Sangat informatif!"
+                    </p>
+                    <div class="d-flex align-items-center mt-auto">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 44px; height: 44px;">
+                            <i class="bi bi-person fs-5"></i>
+                        </div>
+                        <div>
+                            <div class="testimonial-author-name">Rian Adi</div>
+                            <div class="testimonial-author-role">Mahasiswa UGM</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="testimonial-card-custom">
+                    <div class="testimonial-quote-icon"><i class="bi bi-quote"></i></div>
+                    <p class="testimonial-text">
+                        "Log survei fisik di web ini sangat meyakinkan. Saya langsung tahu kapan kos disurvei terakhir kali oleh tim InfoKosMin. Data fasilitasnya akurat."
+                    </p>
+                    <div class="d-flex align-items-center mt-auto">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 44px; height: 44px;">
+                            <i class="bi bi-person fs-5"></i>
+                        </div>
+                        <div>
+                            <div class="testimonial-author-name">Siti Alya</div>
+                            <div class="testimonial-author-role">Pekerja Kantor (Seturan)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="testimonial-card-custom">
+                    <div class="testimonial-quote-icon"><i class="bi bi-quote"></i></div>
+                    <p class="testimonial-text">
+                        "Filter harga dan fasilitasnya akurat sekali. Saya langsung dapat kos putra dengan listrik token dan kasur furnished sesuai budget sewa bulanan."
+                    </p>
+                    <div class="d-flex align-items-center mt-auto">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 44px; height: 44px;">
+                            <i class="bi bi-person fs-5"></i>
+                        </div>
+                        <div>
+                            <div class="testimonial-author-name">Dwi Prasetya</div>
+                            <div class="testimonial-author-role">Mahasiswa Kampus Sleman</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================================================================
+     CTA BANNER SECTION
+     ================================================================ -->
+<section class="py-5 bg-white">
+    <div class="container py-4">
+        <div class="card cta-banner-card text-center text-white border-0">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <h2 class="display-5 fw-bold text-white mb-3">Pintu Gerbang Anda Menuju Hunian Kos Terbaik</h2>
+                    <p class="text-white-50 lead fs-6 mb-4 mx-auto" style="max-width: 600px;">
+                        Hubungi kami untuk mendapatkan layanan survei eksklusif atau untuk berkonsultasi mengenai hunian kos impian Anda.
+                    </p>
+                    <a href="catalog.php" class="btn btn-light btn-lg rounded-pill px-5 py-3" style="font-weight: 700; font-size: 1rem; color: var(--color-primary);">
+                        Mulai Cari Sekarang
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

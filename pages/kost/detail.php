@@ -62,28 +62,28 @@ $pageTitle = $kostDetails['kost_name'];
 require_once __DIR__ . '/../../includes/header.php';
 ?>
 
-<div class="container my-4">
+<div class="container my-5">
     <!-- Breadcrumbs -->
-    <nav aria-label="breadcrumb">
+    <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/index.php">Katalog</a></li>
-            <li class="breadcrumb-item active" aria-current="page"><?= h($kostDetails['kost_name']) ?></li>
+            <li class="breadcrumb-item"><a href="<?= BASE_URL ?>/index.php" class="text-decoration-none">Katalog</a></li>
+            <li class="breadcrumb-item active text-muted" aria-current="page"><?= h($kostDetails['kost_name']) ?></li>
         </ol>
     </nav>
 
     <!-- Header Section -->
-    <div class="row align-items-center mb-4 g-2">
+    <div class="row align-items-center mb-4 g-3">
         <div class="col-md-8">
-            <h1 class="fw-bold mb-1 text-dark"><?= h($kostDetails['kost_name']) ?></h1>
+            <h1 class="fw-bold mb-2 text-dark display-5"><?= h($kostDetails['kost_name']) ?></h1>
             <p class="text-muted mb-0">
                 <i class="bi bi-geo-alt-fill text-danger me-1"></i><?= h($kostDetails['address']) ?>, Kec. <?= h($kostDetails['district']) ?>
             </p>
         </div>
-        <div class="col-md-4 text-md-end">
-            <span class="badge fs-6 <?= statusBadgeClass($kostDetails['availability_status']) ?> px-3 py-2">
+        <div class="col-md-4 text-md-end d-flex flex-wrap gap-2 justify-content-md-end">
+            <span class="kost-badge-status status-<?= h($kostDetails['availability_status']) ?> px-3 py-2 fs-6">
                 <?= statusLabel($kostDetails['availability_status']) ?>
             </span>
-            <span class="badge fs-6 <?= genderBadgeClass($kostDetails['gender_type']) ?> px-3 py-2">
+            <span class="kost-badge-gender gender-<?= h($kostDetails['gender_type']) ?> px-3 py-2 fs-6">
                 Kos <?= genderLabel($kostDetails['gender_type']) ?>
             </span>
         </div>
@@ -93,7 +93,7 @@ require_once __DIR__ . '/../../includes/header.php';
         <!-- Left Column: Photos & Details -->
         <div class="col-lg-8">
             <!-- Photo Gallery Carousel/Grid -->
-            <div class="card shadow-sm border-0 overflow-hidden mb-4">
+            <div class="detail-gallery-carousel mb-4">
                 <?php if (empty($photos)): ?>
                     <div class="bg-light d-flex flex-column align-items-center justify-content-center text-muted" style="height: 400px;">
                         <i class="bi bi-image" style="font-size: 5rem;"></i>
@@ -113,7 +113,7 @@ require_once __DIR__ . '/../../includes/header.php';
                                 ></button>
                             <?php endforeach; ?>
                         </div>
-                        <div class="carousel-inner" style="height: 400px; background: #000;">
+                        <div class="carousel-inner" style="height: 480px; background: #000;">
                             <?php foreach ($photos as $index => $photo): ?>
                                 <div class="carousel-item h-100 <?= $index === 0 ? 'active' : '' ?>">
                                     <img 
@@ -141,30 +141,36 @@ require_once __DIR__ . '/../../includes/header.php';
             </div>
 
             <!-- Specs Grid -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-body">
-                    <h5 class="fw-bold mb-3 border-bottom pb-2">Spesifikasi Kos</h5>
+            <div class="card detail-spec-card border-0 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4 border-bottom pb-2">Spesifikasi Kos</h5>
                     <div class="row g-3">
-                        <div class="col-6 col-md-3 text-center border-end">
-                            <div class="text-muted small mb-1">Ukuran Kamar</div>
-                            <div class="fw-bold text-dark"><i class="bi bi-aspect-ratio me-1"></i><?= $kostDetails['room_size'] ? h($kostDetails['room_size']) : '—' ?></div>
-                        </div>
-                        <div class="col-6 col-md-3 text-center border-end-md">
-                            <div class="text-muted small mb-1">Tipe Listrik</div>
-                            <div class="fw-bold text-dark">
-                                <i class="bi bi-lightning-charge me-1"></i>
-                                <?= $kostDetails['electricity_type'] === 'token' ? 'Token (Pulsa)' : 'Fixed (Free)' ?>
+                        <div class="col-6 col-md-3">
+                            <div class="detail-spec-box">
+                                <div class="detail-spec-icon"><i class="bi bi-aspect-ratio"></i></div>
+                                <div class="detail-spec-title">Ukuran Kamar</div>
+                                <div class="detail-spec-value"><?= $kostDetails['room_size'] ? h($kostDetails['room_size']) . ' m' : '—' ?></div>
                             </div>
                         </div>
-                        <div class="col-6 col-md-3 text-center border-end">
-                            <div class="text-muted small mb-1">Jam Malam</div>
-                            <div class="fw-bold text-dark"><i class="bi bi-clock me-1"></i><?= $kostDetails['curfew'] ? h($kostDetails['curfew']) : 'Bebas' ?></div>
+                        <div class="col-6 col-md-3">
+                            <div class="detail-spec-box">
+                                <div class="detail-spec-icon"><i class="bi bi-lightning-charge"></i></div>
+                                <div class="detail-spec-title">Listrik</div>
+                                <div class="detail-spec-value"><?= $kostDetails['electricity_type'] === 'token' ? 'Token' : 'Fixed' ?></div>
+                            </div>
                         </div>
-                        <div class="col-6 col-md-3 text-center">
-                            <div class="text-muted small mb-1">Furnitur</div>
-                            <div class="fw-bold text-dark">
-                                <i class="bi bi-house-door me-1"></i>
-                                <?= $kostDetails['is_furnished'] ? 'Furnished' : 'Kosongan' ?>
+                        <div class="col-6 col-md-3">
+                            <div class="detail-spec-box">
+                                <div class="detail-spec-icon"><i class="bi bi-clock"></i></div>
+                                <div class="detail-spec-title">Jam Malam</div>
+                                <div class="detail-spec-value"><?= $kostDetails['curfew'] ? h($kostDetails['curfew']) : 'Bebas' ?></div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="detail-spec-box">
+                                <div class="detail-spec-icon"><i class="bi bi-house-door"></i></div>
+                                <div class="detail-spec-title">Furnitur</div>
+                                <div class="detail-spec-value"><?= $kostDetails['is_furnished'] ? 'Furnished' : 'Kosongan' ?></div>
                             </div>
                         </div>
                     </div>
@@ -172,10 +178,10 @@ require_once __DIR__ . '/../../includes/header.php';
             </div>
 
             <!-- Description -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-body">
+            <div class="card detail-spec-card border-0 mb-4">
+                <div class="card-body p-4">
                     <h5 class="fw-bold mb-3 border-bottom pb-2">Deskripsi Lengkap</h5>
-                    <p class="text-muted mb-0" style="white-space: pre-line;">
+                    <p class="text-muted mb-0" style="white-space: pre-line; line-height: 1.7; font-size: 0.95rem;">
                         <?= $kostDetails['description'] ? h($kostDetails['description']) : 'Tidak ada deskripsi tambahan.' ?>
                     </p>
                 </div>
@@ -184,87 +190,93 @@ require_once __DIR__ . '/../../includes/header.php';
 
         <!-- Right Column: Price & Owner Contacts -->
         <div class="col-lg-4">
-            <!-- Price Card -->
-            <div class="card shadow-sm border-primary mb-4">
-                <div class="card-body">
-                    <div class="text-muted small mb-1">Harga Sewa</div>
-                    <div class="price-tag fs-3 mb-2"><?= formatRupiah($kostDetails['monthly_price']) ?> <span class="text-muted fs-6 fw-normal">/ bulan</span></div>
-                    
-                    <!-- Stored Function 2 output (estimated_yearly_cost) -->
-                    <div class="alert alert-light border small text-dark mb-0 py-2">
-                        <i class="bi bi-calculator me-1 text-primary"></i>
-                        Estimasi Biaya / Tahun: <strong><?= formatRupiah($kostDetails['estimated_yearly_cost']) ?></strong>
+            <div class="detail-sticky-sidebar">
+                <!-- Price Card -->
+                <div class="card detail-sidebar-card border-0 mb-4">
+                    <div class="card-header-accent">
+                        Estimasi Biaya Sewa
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="text-muted small mb-1">Harga Sewa Bulanan:</div>
+                        <div class="kost-card-price fs-2 mb-3"><?= formatRupiah($kostDetails['monthly_price']) ?> <span class="text-muted fs-6 fw-normal">/ bulan</span></div>
+                        
+                        <!-- Stored Function 2 output (estimated_yearly_cost) -->
+                        <div class="alert alert-light border small text-dark mb-0 py-2 d-flex align-items-center">
+                            <i class="bi bi-calculator me-2 text-primary fs-5"></i>
+                            <div>
+                                <span class="text-muted small d-block" style="font-size: 0.75rem;">Estimasi Per Tahun (x12):</span>
+                                <strong class="fs-6"><?= formatRupiah($kostDetails['estimated_yearly_cost']) ?></strong>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Facilities Card -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
-                    <h5 class="mb-0 fw-bold text-dark">Fasilitas</h5>
-                    <!-- Stored Function 1 output (total_facilities) -->
-                    <span class="badge bg-primary rounded-pill px-2 py-1">
-                        <?= $kostDetails['total_facilities'] ?> Fasilitas
-                    </span>
-                </div>
-                <div class="card-body">
-                    <?php if (empty($facilitiesList)): ?>
-                        <div class="text-muted small">Tidak ada fasilitas terdaftar.</div>
-                    <?php else: ?>
-                        <div class="d-flex flex-wrap gap-2">
-                            <?php foreach ($facilitiesList as $facility): ?>
-                                <span class="badge bg-light text-dark border px-3 py-2">
-                                    <i class="bi bi-check-circle-fill text-success me-1"></i><?= h($facility) ?>
-                                </span>
-                            <?php endforeach; ?>
+                <!-- Facilities Card -->
+                <div class="card detail-sidebar-card border-0 mb-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                            <h5 class="mb-0 fw-bold text-dark fs-5">Fasilitas</h5>
+                            <!-- Stored Function 1 output (total_facilities) -->
+                            <span class="badge bg-primary rounded-pill px-3 py-2">
+                                <?= $kostDetails['total_facilities'] ?> Fasilitas
+                            </span>
                         </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-            <!-- Owner Card -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mb-0 fw-bold text-dark">Informasi Kontak Pemilik</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                            <i class="bi bi-person fs-4"></i>
-                        </div>
-                        <div>
-                            <div class="fw-bold text-dark"><?= h($kostDetails['owner_name']) ?></div>
-                            <div class="text-muted small">Pemilik Properti</div>
-                        </div>
+                        <?php if (empty($facilitiesList)): ?>
+                            <div class="text-muted small">Tidak ada fasilitas terdaftar.</div>
+                        <?php else: ?>
+                            <div class="d-flex flex-wrap gap-2">
+                                <?php foreach ($facilitiesList as $facility): ?>
+                                    <span class="badge bg-light text-dark border px-3 py-2 d-inline-flex align-items-center">
+                                        <i class="bi bi-check-circle-fill text-success me-1"></i><?= h($facility) ?>
+                                    </span>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
+                </div>
 
-                    <div class="mb-3">
-                        <div class="text-muted small">Nomor Telepon:</div>
-                        <div class="fw-bold"><?= h($kostDetails['phone_number']) ?></div>
-                    </div>
-
-                    <?php if (!empty($kostDetails['owner_email'])): ?>
-                        <div class="mb-4">
-                            <div class="text-muted small">Email:</div>
-                            <div class="fw-bold"><?= h($kostDetails['owner_email']) ?></div>
+                <!-- Owner Card -->
+                <div class="card detail-sidebar-card border-0 mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3 border-bottom pb-2">Kontak Pemilik</h5>
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <i class="bi bi-person fs-4"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark"><?= h($kostDetails['owner_name']) ?></div>
+                                <div class="text-muted small">Pemilik Properti Terverifikasi</div>
+                            </div>
                         </div>
-                    <?php endif; ?>
 
-                    <?php
-                    // Clean phone number for WhatsApp Link
-                    $cleanPhone = preg_replace('/[^0-9]/', '', $kostDetails['phone_number']);
-                    if (strpos($cleanPhone, '0') === 0) {
-                        $cleanPhone = '62' . substr($cleanPhone, 1);
-                    }
-                    ?>
-                    <div class="d-grid gap-2">
-                        <a 
-                            href="https://wa.me/<?= $cleanPhone ?>?text=Halo%20<?= urlencode($kostDetails['owner_name']) ?>%2C%20saya%20tertarik%20dengan%20kos%20<?= urlencode($kostDetails['kost_name']) ?>%20yang%20ada%20di%20InfoKosMin." 
-                            class="btn btn-success" 
-                            target="_blank"
-                        >
-                            <i class="bi bi-whatsapp me-2"></i>Hubungi via WhatsApp
-                        </a>
+                        <div class="mb-3 small">
+                            <span class="text-muted d-block">Nomor Telepon:</span>
+                            <span class="fw-bold text-dark"><?= h($kostDetails['phone_number']) ?></span>
+                        </div>
+
+                        <?php if (!empty($kostDetails['owner_email'])): ?>
+                            <div class="mb-4 small">
+                                <span class="text-muted d-block">Email:</span>
+                                <span class="fw-bold text-dark"><?= h($kostDetails['owner_email']) ?></span>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php
+                        // Clean phone number for WhatsApp Link
+                        $cleanPhone = preg_replace('/[^0-9]/', '', $kostDetails['phone_number']);
+                        if (strpos($cleanPhone, '0') === 0) {
+                            $cleanPhone = '62' . substr($cleanPhone, 1);
+                        }
+                        ?>
+                        <div class="d-grid">
+                            <a 
+                                href="https://wa.me/<?= $cleanPhone ?>?text=Halo%20<?= urlencode($kostDetails['owner_name']) ?>%2C%20saya%20tertarik%20dengan%20kos%20<?= urlencode($kostDetails['kost_name']) ?>%20yang%20ada%20di%20InfoKosMin." 
+                                class="btn btn-success py-2 rounded-pill fw-semibold" 
+                                target="_blank"
+                            >
+                                <i class="bi bi-whatsapp me-2"></i>Hubungi via WhatsApp
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
