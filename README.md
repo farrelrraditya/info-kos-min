@@ -2,6 +2,9 @@
 
 **InfoKosMin** adalah platform katalog kos pintar berbasis web yang dirancang untuk mempermudah pencarian hunian kos terbaik. Aplikasi ini dikembangkan sebagai proyek akademik untuk memenuhi kriteria pemrograman web praktis dan basis data, yang mengutamakan visualisasi data yang andal, struktur basis data ternormalisasi, dan alur administrasi data kos secara dinamis.
 
+Nama : Farrel Raditya
+NIM : 25/557571/SV/26195
+Kelas : PL2B2
 ---
 
 ## Fitur Utama
